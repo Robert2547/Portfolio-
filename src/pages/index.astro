@@ -1,0 +1,364 @@
+---
+import { getCollection } from "astro:content";
+
+// Layout import — provides basic page elements: <head>, <nav>, <footer> etc.
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Component Imports
+import CallToAction from "../components/CallToAction.astro";
+import Grid from "../components/Grid.astro";
+import Hero from "../components/Hero.astro";
+import Icon from "../components/Icon.astro";
+import Pill from "../components/Pill.astro";
+import PortfolioPreview from "../components/PortfolioPreview.astro";
+import LoadingScreen from "../components/LoadingScreen.astro";
+
+// Page section components
+import ContactCTA from "../components/ContactCTA.astro";
+
+// Content Fetching: List four most recent work projects
+const projects = (await getCollection("work"))
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 4);
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/basics/astro-components/
+---
+
+<script>
+  window.onload = () => {
+    setTimeout(() => {
+      const mainContent = document.getElementById("mainContent");
+      const hidden = document.getElementsByClassName(
+        "hiddenInitially"
+      ) as HTMLCollectionOf<HTMLElement>;
+      const loadingPage = document.getElementsByClassName(
+        "loadingPage"
+      ) as HTMLCollectionOf<HTMLElement>;
+      if (!mainContent) {
+        console.error("Main content not found");
+        return;
+      }
+
+      hidden[0].style.display = "block"; //Show the main content
+      loadingPage[0].style.display = "none"; //Hide the loading screen
+
+      console.log("Loaded");
+    }, 1500); // Adjust time as needed
+  };
+</script>
+
+<div class="loadingPage">
+  <LoadingScreen />
+</div>
+
+<div id="mainContent" class="hiddenInitially">
+  <BaseLayout>
+    <div class="stack gap-20 lg:gap-48">
+      <div class="wrapper stack gap-8 lg:gap-20">
+        <header class="hero">
+          <Hero
+            title="Hello, I'm Joseph Benno"
+            tagline="I am a student at University of Central Florida major in Computer Science"
+            align="start"
+          >
+            <div class="roles">
+              <Pill><Icon icon="code" size="1.33em" /> Developer</Pill>
+              <Pill><Icon icon="pencil-line" size="1.33em" /> Student</Pill>
+              <Pill
+                ><a
+                  href="/public/assets/Resume.pdf"
+                  download="Benno_Resume.pdf"
+                  class="download-pill">Download Resume</a
+                ></Pill
+              >
+            </div>
+          </Hero>
+
+          <img
+            alt="Lego portrait of Joseph Benno"
+            width="430"
+            height="620"
+            src="/assets/portrait.jpg"
+          />
+        </header>
+      </div>
+      <main class="wrapper stack gap-20 lg:gap-48">
+        <div>
+          <section class="section with-background with-cta">
+            <header class="section-header stack gap-2 lg:gap-4">
+              <h3>Experiences</h3>
+              <p>
+                Here are some of the experiences I have had over the past few
+                years.
+              </p>
+            </header>
+            <div class="gallery">
+              <Grid variant="offset">
+                {
+                  (
+                    <>
+                      <div class="experience-box">
+                        <h4>Software Developer Intern</h4>
+                        <p>Zea Consulting</p>
+                        <p>Jan 2024 - Present</p>
+                      </div>
+                      <div class="experience-box">
+                        <h4>Undergraduate Research Assistant</h4>
+                        <p>University of Central Florida</p>
+                        <p>Aug 2023 - Dec 2023</p>
+                      </div>
+                    </>
+                  )
+                }
+              </Grid>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <main class="wrapper stack gap-20 lg:gap-48">
+        <section class="section with-background with-cta">
+          <header class="section-header stack gap-2 lg:gap-4">
+            <h3>Projects</h3>
+            <p>
+              Take a look below at some of my projects I worked on over the past
+              few years.
+            </p>
+          </header>
+
+          <div class="gallery">
+            <Grid variant="offset">
+              {
+                projects.map((project) => (
+                  <li>
+                    <PortfolioPreview project={project} />
+                  </li>
+                ))
+              }
+            </Grid>
+          </div>
+
+          <div class="cta">
+            <CallToAction href="/work/">
+              View All
+              <Icon icon="arrow-right" size="1.2em" />
+            </CallToAction>
+          </div>
+        </section>
+
+        <section class="section with-background bg-variant">
+          <header class="section-header stack gap-2 lg:gap-4">
+            <h3>Achievement</h3>
+            <p>
+              Below are some of the hackathons I have participated in and have
+              been recognized for my work.
+            </p>
+          </header>
+
+          <div class="gallery">
+            <Grid variant="small">
+              {
+                [
+                  "Winner of ShellHack 2023 - Google Challenge",
+                  "Winner of KnightHack 2023 - Microsoft & RBC Challenge",
+                  "Winner of HackADay ",
+                ].map((brand) => (
+                  <li>
+                    <div class="mention-card">{brand}</div>
+                  </li>
+                ))
+              }
+            </Grid>
+          </div>
+        </section>
+      </main>
+
+      <ContactCTA />
+    </div>
+  </BaseLayout>
+</div>
+
+<style>
+  .hiddenInitially {
+    display: none;
+  }
+  /* ====================================================== */
+  .experience-box {
+    background: var(--gray-800);
+    border-radius: 8px; /* Rounded corners */
+    padding: 20px; /* Inner spacing */
+    margin-bottom: 20px; /* Spacing between boxes */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+
+  .experience-box h4 {
+    margin: 0;
+    color: rgba(179, 33, 209, 0.764); /* Primary color, customizable */
+    font-size: 1.25rem; /* Larger font size for the role */
+  }
+
+  .experience-box p {
+    margin: 5px 0 0; /* Spacing */
+    color: rgb(164, 134, 170); /* Text color, customizable */
+  }
+  /* ====================================================== */
+  @keyframes textColorChange {
+    from {
+      color: white; /* Starting color */
+    }
+    to {
+      color: darkorange; /* Ending color */
+    }
+  }
+
+  .download-pill {
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    animation: textColorChange 2s infinite alternate;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .roles {
+    display: none;
+  }
+
+  .hero img {
+    aspect-ratio: 5 / 4;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (min-width: 50em) {
+    .hero {
+      display: grid;
+      grid-template-columns: 6fr 4fr;
+      padding-inline: 2.5rem;
+      gap: 3.75rem;
+    }
+
+    .roles {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .hero img {
+      aspect-ratio: 4 / 4;
+      border-radius: 4.5rem;
+      object-fit: cover;
+    }
+  }
+
+  /* ====================================================== */
+
+  .section {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .with-background {
+    position: relative;
+  }
+
+  .with-background::before {
+    --hero-bg: var(--bg-image-subtle-2);
+
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    left: 50%;
+    width: 100vw;
+    aspect-ratio: calc(2.25 / var(--bg-scale));
+    top: 0;
+    transform: translateY(-75%) translateX(-50%);
+    background:
+      url("/assets/backgrounds/noise.png") top center/220px repeat,
+      var(--hero-bg) center center / var(--bg-gradient-size) no-repeat,
+      var(--gray-999);
+    background-blend-mode: overlay, normal, normal, normal;
+    mix-blend-mode: var(--bg-blend-mode);
+    z-index: -1;
+  }
+
+  .with-background.bg-variant::before {
+    --hero-bg: var(--bg-image-subtle-1);
+  }
+
+  .section-header {
+    justify-self: center;
+    text-align: center;
+    max-width: 50ch;
+    font-size: var(--text-md);
+    color: var(--gray-300);
+  }
+
+  .section-header h3 {
+    font-size: var(--text-2xl);
+  }
+
+  @media (min-width: 50em) {
+    .section {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-areas: "header header header header" "gallery gallery gallery gallery";
+      gap: 5rem;
+    }
+
+    .section.with-cta {
+      grid-template-areas: "header header header cta" "gallery gallery gallery gallery";
+    }
+
+    .section-header {
+      grid-area: header;
+      font-size: var(--text-lg);
+    }
+
+    .section-header h3 {
+      font-size: var(--text-4xl);
+    }
+
+    .with-cta .section-header {
+      justify-self: flex-start;
+      text-align: left;
+    }
+
+    .gallery {
+      grid-area: gallery;
+    }
+
+    .cta {
+      grid-area: cta;
+    }
+  }
+
+  /* ====================================================== */
+
+  .mention-card {
+    display: flex;
+    height: 7rem;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--gray-800);
+    border-radius: 1.5rem;
+    color: var(--gray-300);
+    background: var(--gradient-subtle);
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 50em) {
+    .mention-card {
+      border-radius: 1.5rem;
+      height: 9.5rem;
+    }
+  }
+</style>
